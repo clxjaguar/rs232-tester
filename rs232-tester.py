@@ -5,26 +5,6 @@
 
 import sys, os, glob, serial
 
-def listSerialPorts():
-	if sys.platform.startswith('win'):
-		ports = ['COM%s' % (i + 1) for i in range(255)]
-	elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
-		ports = glob.glob('/dev/tty[A-Za-z]*')
-	elif sys.platform.startswith('darwin'):
-		ports = glob.glob('/dev/tty.*')
-	else:
-		raise EnvironmentError('Unsupported platform')
-
-	result = []
-	for port in ports:
-		try:
-			s = serial.Serial(port)
-			s.close()
-			result.append(port)
-		except (OSError, serial.SerialException):
-			pass
-	return result
-
 try:
 	# sudo apt-get install python3-pyqt5
 	# ~ raise("Uncomment this line is to want to force fallback to PyQt4 for testing")
@@ -40,45 +20,6 @@ except:
 	PYQT_VERSION = 4
 	print("Using PyQt4")
 
-
-class LED(QLabel):
-	"""Pas besoin de Labview pour avoir des leds virtuelles !"""
-	def __init__(self, size=30, color=(0, 255, 0), text="", enabled=False):
-		QLabel.__init__(self, text)
-		self.color = color
-		self.size = size
-		self.enabled = enabled
-		self.setFixedSize(size, size)
-		self.setAlignment(Qt.AlignCenter)
-		self.update()
-
-	def enable(self, enabled=True):
-		"""Allume (ou éteint) la led."""
-		self.enabled = enabled
-		self.update()
-
-	def disable(self):
-		self.enabled = False
-		self.update()
-
-	def setColor(self, color, enabled=None):
-		self.color = color
-		if enabled != None:
-			self.enabled = enabled
-		self.update()
-
-	def update(self):
-		r1, g1, b1 = self.color
-		r2, g2, b2 = self.color
-		if not self.enabled:
-			if r1 == 0 or r1 == 0 or r1 == 0: r1, g1, b1 = r1/4, g1/6, b1/2.5; r2, g2, b2 = r2/10, g2/12, b2/6
-			else: r1, g1, b1 = r1/4, g1/4, b1/4; r2, g2, b2 = r2/10, g2/10, b2/10
-		else:
-			r1, g1, b1 = min(255, r1+80), min(255, g1+80), min(255, b1+80)
-
-		self.setStyleSheet("margin: 0px; padding: 0px; color: black; border-radius: %.0f; background-color: qlineargradient(spread:pad, x1:0.145, y1:0.16, x2:1, y2:1, stop:0 rgba(%d, %d, %d, 255), stop:1 rgba(%d, %d, %d, 255));" % (self.size / 2, r1, g1, b1, r2, g2, b2))
-
-import time
 
 class GUI(QWidget):
 	def __init__(self):
@@ -167,7 +108,7 @@ class GUI(QWidget):
 		layout.addLayout(btnLayout)
 		layout.addLayout(signalsLayout)
 
-		self.setWindowTitle(u"Serial Booper")
+		self.setWindowTitle(u"RS232 Tester")
 		self.show()
 
 		self.refreshTimer = QTimer()
@@ -220,6 +161,66 @@ class GUI(QWidget):
 
 		for signalName in self.signals:
 			self.signals[signalName].led.enable(self.signals[signalName].isChecked())
+
+
+class LED(QLabel):
+	"""Pas besoin de Labview pour avoir des leds virtuelles !"""
+	def __init__(self, size=30, color=(0, 255, 0), text="", enabled=False):
+		QLabel.__init__(self, text)
+		self.color = color
+		self.size = size
+		self.enabled = enabled
+		self.setFixedSize(size, size)
+		self.setAlignment(Qt.AlignCenter)
+		self.update()
+
+	def enable(self, enabled=True):
+		"""Allume (ou éteint) la led."""
+		self.enabled = enabled
+		self.update()
+
+	def disable(self):
+		self.enabled = False
+		self.update()
+
+	def setColor(self, color, enabled=None):
+		self.color = color
+		if enabled != None:
+			self.enabled = enabled
+		self.update()
+
+	def update(self):
+		r1, g1, b1 = self.color
+		r2, g2, b2 = self.color
+		if not self.enabled:
+			if r1 == 0 or r1 == 0 or r1 == 0: r1, g1, b1 = r1/4, g1/6, b1/2.5; r2, g2, b2 = r2/10, g2/12, b2/6
+			else: r1, g1, b1 = r1/4, g1/4, b1/4; r2, g2, b2 = r2/10, g2/10, b2/10
+		else:
+			r1, g1, b1 = min(255, r1+80), min(255, g1+80), min(255, b1+80)
+
+		self.setStyleSheet("margin: 0px; padding: 0px; color: black; border-radius: %.0f; background-color: qlineargradient(spread:pad, x1:0.145, y1:0.16, x2:1, y2:1, stop:0 rgba(%d, %d, %d, 255), stop:1 rgba(%d, %d, %d, 255));" % (self.size / 2, r1, g1, b1, r2, g2, b2))
+
+
+def listSerialPorts():
+	if sys.platform.startswith('win'):
+		ports = ['COM%s' % (i + 1) for i in range(255)]
+	elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
+		ports = glob.glob('/dev/tty[A-Za-z]*')
+	elif sys.platform.startswith('darwin'):
+		ports = glob.glob('/dev/tty.*')
+	else:
+		raise EnvironmentError('Unsupported platform')
+
+	result = []
+	for port in ports:
+		try:
+			s = serial.Serial(port)
+			s.close()
+			result.append(port)
+		except (OSError, serial.SerialException):
+			pass
+	return result
+
 
 def main():
 	app = QApplication(sys.argv)
