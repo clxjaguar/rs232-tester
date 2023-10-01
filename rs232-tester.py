@@ -91,7 +91,7 @@ class GUI(QWidget):
 			self.signals[signalName].setEnabled(False)
 			signalsLayout.addWidget(self.signals[signalName])
 			pin, name = self.signals[signalName].text().split('/')
-			self.signals[signalName].led = LED(text=pin)
+			self.signals[signalName].led = LED()
 			ledsLayout.addWidget(self.signals[signalName].led, 0, i, alignment=Qt.AlignCenter|Qt.AlignBottom)
 			ledsLayout.addWidget(QLabel(name), 1, i, alignment=Qt.AlignCenter|Qt.AlignTop)
 
