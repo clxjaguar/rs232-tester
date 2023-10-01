@@ -7,18 +7,12 @@ import sys, os, glob, serial
 
 try:
 	# sudo apt-get install python3-pyqt5
-	# ~ raise("Uncomment this line is to want to force fallback to PyQt4 for testing")
 	from PyQt5.QtGui import *
 	from PyQt5.QtCore import *
 	from PyQt5.QtWidgets import *
-	PYQT_VERSION = 5
-	print("Using PyQt5")
 except:
-	# sudo apt-get install python-qtpy python3-qtpy
 	from PyQt4.QtGui import *
 	from PyQt4.QtCore import *
-	PYQT_VERSION = 4
-	print("Using PyQt4")
 
 
 class GUI(QWidget):
@@ -164,7 +158,6 @@ class GUI(QWidget):
 
 
 class LED(QLabel):
-	"""Pas besoin de Labview pour avoir des leds virtuelles !"""
 	def __init__(self, size=30, color=(0, 255, 0), text="", enabled=False):
 		QLabel.__init__(self, text)
 		self.color = color
@@ -175,7 +168,6 @@ class LED(QLabel):
 		self.update()
 
 	def enable(self, enabled=True):
-		"""Allume (ou éteint) la led."""
 		self.enabled = enabled
 		self.update()
 
