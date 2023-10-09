@@ -3,7 +3,7 @@
 
 # https://github.com/clxjaguar/rs232-tester
 
-import sys, os, glob, serial
+import sys, serial, serial.tools.list_ports
 
 try:
 	# sudo apt-get install python3-pyqt5
@@ -194,23 +194,9 @@ class LED(QLabel):
 
 
 def listSerialPorts():
-	if sys.platform.startswith('win'):
-		ports = ['COM%s' % (i + 1) for i in range(255)]
-	elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
-		ports = glob.glob('/dev/tty[A-Za-z]*')
-	elif sys.platform.startswith('darwin'):
-		ports = glob.glob('/dev/tty.*')
-	else:
-		raise EnvironmentError('Unsupported platform')
-
 	result = []
-	for port in ports:
-		try:
-			s = serial.Serial(port)
-			s.close()
-			result.append(port)
-		except (OSError, serial.SerialException):
-			pass
+	for port in serial.tools.list_ports.comports():
+		result.append(tuple(port)[0])
 	return result
 
 
