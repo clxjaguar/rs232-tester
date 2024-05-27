@@ -25,13 +25,12 @@ class GUI(QWidget):
 	def initUI(self):
 		self.setStyleSheet("\
 			QLabel { margin: 0px; padding: 0px; } \
-			QLabel#label { font-size: 30pt; } \
+			QLabel#top_padding { font-size: 8px; } \
 			QPushButton::checked#green { color: #000000; background: #00ff00; } \
 			QSplitter::handle:vertical   { image: none; } \
 			QSplitter::handle:horizontal { width:  2px; image: none; } \
+			QGroupBox { border: 1px solid #707070; border-radius: 50px; padding: 0px; } \
 		");
-
-		layout = QVBoxLayout(self)
 
 		def mkQLabel(text=None, layout=None, alignment=Qt.AlignLeft, objectName=None):
 			o = QLabel()
@@ -66,7 +65,6 @@ class GUI(QWidget):
 				layout.addWidget(btn)
 			return btn
 
-		ledsLayout = QGridLayout()
 		btnLayout = QHBoxLayout()
 		self.refreshBtn = mkButton(u"↻", btnLayout, self.refreshSerial, toolButton=True)
 		self.serialDeviceCombo = QComboBox()
@@ -88,20 +86,33 @@ class GUI(QWidget):
 		self.signals['cts'] = QCheckBox("8/CTS")
 		self.signals['ri']  = QCheckBox("9/RI")
 
+		ledsGroupBox = QGroupBox(self)
+		ledsLayout = QGridLayout(ledsGroupBox)
 		signalsLayout = QHBoxLayout()
 		for i, signalName in enumerate(self.signals):
 			self.signals[signalName].setEnabled(False)
 			signalsLayout.addWidget(self.signals[signalName])
 			pin, name = self.signals[signalName].text().split('/')
-			self.signals[signalName].led = LED()
-			ledsLayout.addWidget(self.signals[signalName].led, 0, i, alignment=Qt.AlignCenter|Qt.AlignBottom)
-			ledsLayout.addWidget(QLabel(name), 1, i, alignment=Qt.AlignCenter|Qt.AlignTop)
+			self.signals[signalName].led = LED(size=40)
+			if int(pin) <= 5: x, y = (int(pin)-1)*2, 1
+			else:             x, y = (int(pin)-6)*2+1, 3
+			print(name, pin, x, y)
+			ledsLayout.addWidget(self.signals[signalName].led, y, x, 1, 2, alignment=Qt.AlignCenter)
+			ledsLayout.addWidget(QLabel(self.signals[signalName].text()), y+1, x, 1, 2, alignment=Qt.AlignCenter|Qt.AlignTop)
+			self.signals[signalName].setText(name)
+
+		l = QLabel(); l.setObjectName('top_padding')
+		ledsLayout.addWidget(l, 0, 0, 1, 10, alignment=Qt.AlignCenter)
+		ledsLayout.addWidget(LED(size=40, color=(127, 127, 127), enabled=True), 1, 8, 1, 2, alignment=Qt.AlignCenter)
+		ledsLayout.addWidget(QLabel('5/GND'), 2, 8, 1, 2, alignment=Qt.AlignCenter|Qt.AlignTop)
 
 		self.signals['dtr'].led.setColor((255, 0, 0))
 		self.signals['rts'].led.setColor((255, 0, 0))
+		self.signals['tx'].led.setColor((255, 0, 0))
 
-		layout.addLayout(ledsLayout)
+		layout = QVBoxLayout(self)
 		layout.addLayout(btnLayout)
+		layout.addWidget(ledsGroupBox)
 		layout.addLayout(signalsLayout)
 
 		self.setWindowTitle(u"RS232 Tester")
