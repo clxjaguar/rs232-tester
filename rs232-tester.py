@@ -18,6 +18,7 @@ except:
 class GUI(QWidget):
 	def __init__(self):
 		QWidget.__init__(self)
+		self.msg = bytes([0x55])
 		self.initUI()
 		self.refreshSerial()
 
@@ -78,6 +79,8 @@ class GUI(QWidget):
 
 		self.signals = {}
 		self.signals['cd']  = QCheckBox("1/CD")
+		self.signals['rx']  = QCheckBox("2/RX")
+		self.signals['tx']  = QCheckBox("3/TX")
 		self.signals['dtr'] = QCheckBox("4/DTR")
 		self.signals['dtr'].stateChanged.connect(self.updateSerialDTR)
 		self.signals['dsr'] = QCheckBox("6/DSR")
@@ -114,11 +117,12 @@ class GUI(QWidget):
 
 	def openPortClicked(self):
 		try:
-			self.serial = serial.Serial(self.serialDeviceCombo.currentText())
+			self.serial = serial.Serial(self.serialDeviceCombo.currentText(), timeout=0.1, write_timeout=0.1)
 			self.openBtn.setDisabled(True)
 			self.closeBtn.setDisabled(False)
 			self.refreshBtn.setDisabled(True)
 			self.serialDeviceCombo.setDisabled(True)
+			self.signals['tx'].setEnabled(True)
 			self.signals['dtr'].setEnabled(True)
 			self.signals['rts'].setEnabled(True)
 			self.refreshTimer.start(50)
@@ -133,6 +137,7 @@ class GUI(QWidget):
 		self.closeBtn.setDisabled(True)
 		self.refreshBtn.setDisabled(False)
 		self.serialDeviceCombo.setDisabled(False)
+		self.signals['tx'].setEnabled(False)
 		self.signals['dtr'].setEnabled(False)
 		self.signals['rts'].setEnabled(False)
 
@@ -152,6 +157,21 @@ class GUI(QWidget):
 		self.signals['rts'].setChecked(self.serial.rts) # output signal
 		self.signals['cts'].setChecked(self.serial.cts)
 		self.signals['ri'].setChecked(self.serial.ri)
+
+		if self.signals['tx'].isChecked():
+			self.serial.write(self.msg)
+
+		l = self.serial.in_waiting
+		if l:
+			rx_str = self.serial.read(l)
+			self.signals['rx'].setChecked(True)
+			if rx_str == self.msg:
+				self.signals['rx'].led.setColor((0, 255, 0))
+			else:
+				self.signals['rx'].led.setColor((255, 255, 0))
+				print(rx_str)
+		else:
+			self.signals['rx'].setChecked(False)
 
 		for signalName in self.signals:
 			self.signals[signalName].led.enable(self.signals[signalName].isChecked())
