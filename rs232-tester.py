@@ -68,11 +68,10 @@ class GUI(QWidget):
 
 		ledsLayout = QGridLayout()
 		btnLayout = QHBoxLayout()
+		self.refreshBtn = mkButton(u"↻", btnLayout, self.refreshSerial, toolButton=True)
 		self.serialDeviceCombo = QComboBox()
 		self.serialDeviceCombo.setEditable(True)
-
 		btnLayout.addWidget(self.serialDeviceCombo)
-		self.refreshBtn = mkButton(u"↻", btnLayout, self.refreshSerial, toolButton=True)
 		self.openBtn = mkButton("Open", btnLayout, self.openPortClicked, toolButton=True)
 		self.closeBtn = mkButton("Close", btnLayout, self.closePortClicked, toolButton=True)
 		self.closeBtn.setDisabled(True)
