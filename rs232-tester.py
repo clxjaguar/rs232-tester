@@ -155,18 +155,30 @@ class GUI(QWidget):
 			self.signals[signalName].led.enable(False)
 
 	def updateSerialDTR(self):
-		self.serial.dtr = self.signals['dtr'].isChecked()
+		try:
+			self.serial.dtr = self.signals['dtr'].isChecked()
+		except Exception as e:
+			QMessageBox.critical(self, "Error", str(e))
 
 	def updateSerialRTS(self):
-		self.serial.rts = self.signals['rts'].isChecked()
+		try:
+			self.serial.rts = self.signals['rts'].isChecked()
+		except Exception as e:
+			QMessageBox.critical(self, "Error", str(e))
 
 	def refresh(self):
-		self.signals['cd'].setChecked(self.serial.cd)
-		self.signals['dtr'].setChecked(self.serial.dtr) # output signal
-		self.signals['dsr'].setChecked(self.serial.dsr)
-		self.signals['rts'].setChecked(self.serial.rts) # output signal
-		self.signals['cts'].setChecked(self.serial.cts)
-		self.signals['ri'].setChecked(self.serial.ri)
+		try: self.signals['cd'].setChecked(self.serial.cd)
+		except: pass
+		try: self.signals['dtr'].setChecked(self.serial.dtr) # output signal
+		except: pass
+		try: self.signals['dsr'].setChecked(self.serial.dsr)
+		except: pass
+		try: self.signals['rts'].setChecked(self.serial.rts) # output signal
+		except: pass
+		try: self.signals['cts'].setChecked(self.serial.cts)
+		except: pass
+		try: self.signals['ri'].setChecked(self.serial.ri)
+		except: pass
 
 		if self.signals['tx'].isChecked():
 			self.serial.write(self.msg)
