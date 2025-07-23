@@ -180,23 +180,28 @@ class GUI(QWidget):
 		try: self.signals['ri'].setChecked(self.serial.ri)
 		except: pass
 
-		if self.signals['tx'].isChecked():
-			self.serial.write(self.msg)
+		try:
+			if self.signals['tx'].isChecked():
+				self.serial.write(self.msg)
 
-		l = self.serial.in_waiting
-		if l:
-			rx_str = self.serial.read(l)
-			self.signals['rx'].setChecked(True)
-			if rx_str == self.msg:
-				self.signals['rx'].led.setColor((0, 255, 0))
+			l = self.serial.in_waiting
+			if l:
+				rx_str = self.serial.read(l)
+				self.signals['rx'].setChecked(True)
+				if rx_str == self.msg:
+					self.signals['rx'].led.setColor((0, 255, 0))
+				else:
+					self.signals['rx'].led.setColor((255, 255, 0))
+					print(rx_str)
 			else:
-				self.signals['rx'].led.setColor((255, 255, 0))
-				print(rx_str)
-		else:
-			self.signals['rx'].setChecked(False)
+				self.signals['rx'].setChecked(False)
 
-		for signalName in self.signals:
-			self.signals[signalName].led.enable(self.signals[signalName].isChecked())
+			for signalName in self.signals:
+				self.signals[signalName].led.enable(self.signals[signalName].isChecked())
+
+		except Exception as e:
+			self.closePortClicked()
+			QMessageBox.critical(self, "Fucking Error", str(e))
 
 
 class LED(QLabel):
